@@ -23,7 +23,6 @@ namespace GestionBiblioteca_Desafio1.Services
 
         private void CargarDatosEjemplo()
         {
-            // Libros de ejemplo
             AgregarMaterial(new Libro("Cien anos de soledad", "Gabriel Garcia Marquez", 1967, 432, "978-0307474728", "Novela"));
             AgregarMaterial(new Libro("El principito", "Antoine de Saint-Exupery", 1943, 96, "978-0156012195", "Literatura"));
             AgregarMaterial(new Libro("Don Quijote de la Mancha", "Miguel de Cervantes", 1605, 863, "978-8420412146", "Clasico"));
@@ -33,31 +32,46 @@ namespace GestionBiblioteca_Desafio1.Services
             AgregarMaterial(new Libro("1984", "George Orwell", 1949, 328, "978-0451524935", "Distopia"));
             AgregarMaterial(new Libro("El alquimista", "Paulo Coelho", 1988, 208, "978-0062315007", "Novela"));
 
-            // Usuarios de ejemplo
             AgregarUsuario(new UsuarioBiblioteca("Maria Torres", "2021-001", "maria@email.com"));
             AgregarUsuario(new UsuarioBiblioteca("Carlos Lopez", "2021-002", "carlos@email.com"));
             AgregarUsuario(new UsuarioBiblioteca("Ana Martinez", "2021-003", "ana@email.com"));
             AgregarUsuario(new UsuarioBiblioteca("Pedro Ramirez", "2021-004", "pedro@email.com"));
             AgregarUsuario(new UsuarioBiblioteca("Laura Gonzalez", "2021-005", "laura@email.com"));
 
-            // Prestamos de ejemplo
-            RegistrarPrestamo(1, 1); // Cien anos de soledad -> Maria Torres
-            RegistrarPrestamo(2, 2); // El principito -> Carlos Lopez
-            RegistrarPrestamo(3, 3); // Don Quijote -> Ana Martinez
-            RegistrarPrestamo(4, 1); // Harry Potter -> Maria Torres
-            RegistrarPrestamo(5, 4); // El codigo Da Vinci -> Pedro Ramirez
-            RegistrarPrestamo(6, 5); // Orgullo y prejuicio -> Laura Gonzalez
-            RegistrarPrestamo(7, 2); // 1984 -> Carlos Lopez
+            RegistrarPrestamo(1, 1);
+            RegistrarPrestamo(2, 2);
+            RegistrarPrestamo(3, 3);
+            RegistrarPrestamo(4, 1);
+            RegistrarPrestamo(5, 4);
+            RegistrarPrestamo(6, 5);
+            RegistrarPrestamo(7, 2);
 
-            // Devoluciones de ejemplo
-            RegistrarDevolucion(1); // Maria devuelve Cien anos de soledad
-            RegistrarDevolucion(3); // Ana devuelve Don Quijote
-            RegistrarDevolucion(6); // Laura devuelve Orgullo y prejuicio
+            RegistrarDevolucion(1);
+            RegistrarDevolucion(3);
+            RegistrarDevolucion(6);
         }
 
         // ── CRUD Materiales ──────────────────────────────────────────────
         public MaterialBiblioteca AgregarMaterial(MaterialBiblioteca m)
         {
+            // Validacion de ISBN duplicado
+            if (m is Libro libroNuevo)
+            {
+                bool isbnDuplicado = _materiales.Values
+                    .OfType<Libro>()
+                    .Any(l => l.ISBN.Equals(libroNuevo.ISBN, StringComparison.OrdinalIgnoreCase));
+                if (isbnDuplicado)
+                    throw new InvalidOperationException($"Ya existe un libro con el ISBN '{libroNuevo.ISBN}'.");
+            }
+
+            // Validacion de carnet duplicado
+            if (string.IsNullOrWhiteSpace(m.Titulo))
+                throw new ArgumentException("El titulo es obligatorio.");
+            if (string.IsNullOrWhiteSpace(m.Autor))
+                throw new ArgumentException("El autor es obligatorio.");
+            if (m.Anio < 1000 || m.Anio > DateTime.Now.Year)
+                throw new ArgumentException("El año no es valido.");
+
             m.Id = ++_seqMat;
             _materiales[m.Id] = m;
             return m;
@@ -66,6 +80,18 @@ namespace GestionBiblioteca_Desafio1.Services
         public bool ActualizarMaterial(MaterialBiblioteca m)
         {
             if (!_materiales.ContainsKey(m.Id)) return false;
+
+            // Validacion de ISBN duplicado al actualizar
+            if (m is Libro libroActualizado)
+            {
+                bool isbnDuplicado = _materiales.Values
+                    .OfType<Libro>()
+                    .Any(l => l.ISBN.Equals(libroActualizado.ISBN, StringComparison.OrdinalIgnoreCase)
+                              && l.Id != libroActualizado.Id);
+                if (isbnDuplicado)
+                    throw new InvalidOperationException($"Ya existe otro libro con el ISBN '{libroActualizado.ISBN}'.");
+            }
+
             _materiales[m.Id] = m;
             return true;
         }
@@ -95,6 +121,21 @@ namespace GestionBiblioteca_Desafio1.Services
         // ── CRUD Usuarios ────────────────────────────────────────────────
         public UsuarioBiblioteca AgregarUsuario(UsuarioBiblioteca u)
         {
+            // Validacion de carnet duplicado
+            bool carnetDuplicado = _usuarios.Values
+                .Any(x => x.Carnet.Equals(u.Carnet, StringComparison.OrdinalIgnoreCase));
+            if (carnetDuplicado)
+                throw new InvalidOperationException($"Ya existe un usuario con el carnet '{u.Carnet}'.");
+
+            if (string.IsNullOrWhiteSpace(u.Nombre))
+                throw new ArgumentException("El nombre es obligatorio.");
+            if (string.IsNullOrWhiteSpace(u.Carnet))
+                throw new ArgumentException("El carnet es obligatorio.");
+            if (string.IsNullOrWhiteSpace(u.Correo))
+                throw new ArgumentException("El correo es obligatorio.");
+            if (!u.Correo.Contains("@"))
+                throw new ArgumentException("El correo no es valido.");
+
             u.Id = ++_seqUser;
             _usuarios[u.Id] = u;
             return u;
@@ -103,6 +144,14 @@ namespace GestionBiblioteca_Desafio1.Services
         public bool ActualizarUsuario(UsuarioBiblioteca u)
         {
             if (!_usuarios.ContainsKey(u.Id)) return false;
+
+            // Validacion de carnet duplicado al actualizar
+            bool carnetDuplicado = _usuarios.Values
+                .Any(x => x.Carnet.Equals(u.Carnet, StringComparison.OrdinalIgnoreCase)
+                          && x.Id != u.Id);
+            if (carnetDuplicado)
+                throw new InvalidOperationException($"Ya existe otro usuario con el carnet '{u.Carnet}'.");
+
             _usuarios[u.Id] = u;
             return true;
         }
