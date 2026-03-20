@@ -49,15 +49,8 @@ namespace GestionBiblioteca_Desafio1
         private void btnUsuarios_Click(object sender, EventArgs e)
         {
             LimpiarPanel();
-            var lbl = new Label
-            {
-                Text = "👤 Módulo de Usuarios - Próximamente",
-                Font = new Font("Segoe UI", 14f),
-                ForeColor = Color.FromArgb(30, 58, 95),
-                AutoSize = true,
-                Location = new Point(20, 20)
-            };
-            panelContenido.Controls.Add(lbl);
+            var formUsuarios = new Forms.FormUsuarios(_servicio);
+            panelContenido.Controls.Add(formUsuarios);
         }
 
         private void btnPrestamos_Click(object sender, EventArgs e)
