@@ -42,15 +42,8 @@ namespace GestionBiblioteca_Desafio1
         private void btnLibros_Click(object sender, EventArgs e)
         {
             LimpiarPanel();
-            var lbl = new Label
-            {
-                Text = "📚 Módulo de Libros - Próximamente",
-                Font = new Font("Segoe UI", 14f),
-                ForeColor = Color.FromArgb(30, 58, 95),
-                AutoSize = true,
-                Location = new Point(20, 20)
-            };
-            panelContenido.Controls.Add(lbl);
+            var formLibros = new Forms.FormLibros(_servicio);
+            panelContenido.Controls.Add(formLibros);
         }
 
         private void btnUsuarios_Click(object sender, EventArgs e)
