@@ -63,15 +63,8 @@ namespace GestionBiblioteca_Desafio1
         private void btnEstadisticas_Click(object sender, EventArgs e)
         {
             LimpiarPanel();
-            var lbl = new Label
-            {
-                Text = "📊 Módulo de Estadísticas - Próximamente",
-                Font = new Font("Segoe UI", 14f),
-                ForeColor = Color.FromArgb(30, 58, 95),
-                AutoSize = true,
-                Location = new Point(20, 20)
-            };
-            panelContenido.Controls.Add(lbl);
+            var formEstadisticas = new Forms.FormEstadisticas(_servicio);
+            panelContenido.Controls.Add(formEstadisticas);
         }
     }
 }
