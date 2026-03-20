@@ -56,15 +56,8 @@ namespace GestionBiblioteca_Desafio1
         private void btnPrestamos_Click(object sender, EventArgs e)
         {
             LimpiarPanel();
-            var lbl = new Label
-            {
-                Text = "📋 Módulo de Préstamos - Próximamente",
-                Font = new Font("Segoe UI", 14f),
-                ForeColor = Color.FromArgb(30, 58, 95),
-                AutoSize = true,
-                Location = new Point(20, 20)
-            };
-            panelContenido.Controls.Add(lbl);
+            var formPrestamos = new Forms.FormPrestamos(_servicio);
+            panelContenido.Controls.Add(formPrestamos);
         }
 
         private void btnEstadisticas_Click(object sender, EventArgs e)
