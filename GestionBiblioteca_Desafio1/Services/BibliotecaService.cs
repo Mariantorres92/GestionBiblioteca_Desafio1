@@ -16,6 +16,45 @@ namespace GestionBiblioteca_Desafio1.Services
         private readonly List<Prestamo> _prestamos =
             new List<Prestamo>();
 
+        public BibliotecaService()
+        {
+            CargarDatosEjemplo();
+        }
+
+        private void CargarDatosEjemplo()
+        {
+            // Libros de ejemplo
+            AgregarMaterial(new Libro("Cien anos de soledad", "Gabriel Garcia Marquez", 1967, 432, "978-0307474728", "Novela"));
+            AgregarMaterial(new Libro("El principito", "Antoine de Saint-Exupery", 1943, 96, "978-0156012195", "Literatura"));
+            AgregarMaterial(new Libro("Don Quijote de la Mancha", "Miguel de Cervantes", 1605, 863, "978-8420412146", "Clasico"));
+            AgregarMaterial(new Libro("Harry Potter", "J.K. Rowling", 1997, 309, "978-0439708180", "Fantasia"));
+            AgregarMaterial(new Libro("El codigo Da Vinci", "Dan Brown", 2003, 454, "978-0307474278", "Thriller"));
+            AgregarMaterial(new Libro("Orgullo y prejuicio", "Jane Austen", 1813, 432, "978-0141439518", "Romance"));
+            AgregarMaterial(new Libro("1984", "George Orwell", 1949, 328, "978-0451524935", "Distopia"));
+            AgregarMaterial(new Libro("El alquimista", "Paulo Coelho", 1988, 208, "978-0062315007", "Novela"));
+
+            // Usuarios de ejemplo
+            AgregarUsuario(new UsuarioBiblioteca("Maria Torres", "2021-001", "maria@email.com"));
+            AgregarUsuario(new UsuarioBiblioteca("Carlos Lopez", "2021-002", "carlos@email.com"));
+            AgregarUsuario(new UsuarioBiblioteca("Ana Martinez", "2021-003", "ana@email.com"));
+            AgregarUsuario(new UsuarioBiblioteca("Pedro Ramirez", "2021-004", "pedro@email.com"));
+            AgregarUsuario(new UsuarioBiblioteca("Laura Gonzalez", "2021-005", "laura@email.com"));
+
+            // Prestamos de ejemplo
+            RegistrarPrestamo(1, 1); // Cien anos de soledad -> Maria Torres
+            RegistrarPrestamo(2, 2); // El principito -> Carlos Lopez
+            RegistrarPrestamo(3, 3); // Don Quijote -> Ana Martinez
+            RegistrarPrestamo(4, 1); // Harry Potter -> Maria Torres
+            RegistrarPrestamo(5, 4); // El codigo Da Vinci -> Pedro Ramirez
+            RegistrarPrestamo(6, 5); // Orgullo y prejuicio -> Laura Gonzalez
+            RegistrarPrestamo(7, 2); // 1984 -> Carlos Lopez
+
+            // Devoluciones de ejemplo
+            RegistrarDevolucion(1); // Maria devuelve Cien anos de soledad
+            RegistrarDevolucion(3); // Ana devuelve Don Quijote
+            RegistrarDevolucion(6); // Laura devuelve Orgullo y prejuicio
+        }
+
         // ── CRUD Materiales ──────────────────────────────────────────────
         public MaterialBiblioteca AgregarMaterial(MaterialBiblioteca m)
         {
@@ -34,7 +73,7 @@ namespace GestionBiblioteca_Desafio1.Services
         public bool EliminarMaterial(int id)
         {
             if (_materiales.ContainsKey(id) && _materiales[id].Prestado)
-                throw new InvalidOperationException("No se puede eliminar: el libro está prestado.");
+                throw new InvalidOperationException("No se puede eliminar: el libro esta prestado.");
             return _materiales.Remove(id);
         }
 
@@ -72,7 +111,7 @@ namespace GestionBiblioteca_Desafio1.Services
         {
             bool tienePrestamos = _prestamos.Any(p => p.UsuarioId == id && p.Activo);
             if (tienePrestamos)
-                throw new InvalidOperationException("No se puede eliminar: el usuario tiene préstamos activos.");
+                throw new InvalidOperationException("No se puede eliminar: el usuario tiene prestamos activos.");
             return _usuarios.Remove(id);
         }
 
@@ -90,7 +129,7 @@ namespace GestionBiblioteca_Desafio1.Services
 
             if (m == null) throw new InvalidOperationException("Libro no encontrado.");
             if (u == null) throw new InvalidOperationException("Usuario no encontrado.");
-            if (m.Prestado) throw new InvalidOperationException("El libro ya está prestado.");
+            if (m.Prestado) throw new InvalidOperationException("El libro ya esta prestado.");
 
             m.AsignarPrestamo(u);
 
@@ -111,7 +150,7 @@ namespace GestionBiblioteca_Desafio1.Services
         {
             var m = _materiales.ContainsKey(materialId) ? _materiales[materialId] : null;
             if (m == null) throw new InvalidOperationException("Libro no encontrado.");
-            if (!m.Prestado) throw new InvalidOperationException("El libro no está prestado.");
+            if (!m.Prestado) throw new InvalidOperationException("El libro no esta prestado.");
 
             m.Devolver();
             var p = _prestamos.LastOrDefault(x => x.MaterialId == materialId && x.Activo);
